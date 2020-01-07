@@ -16,6 +16,11 @@
 % URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8672851&isnumber=6514899               %
 %  
 
+
+
+
+
+
 function [ best_fitness_value, best_scout_bee ] = FDO( function_name, max_iteration, scout_bee_number, weightFactor )
 
 
@@ -37,7 +42,13 @@ for iterate = 1 : max_iteration
         best_bee =  getBestScoutBee(scouts); % find global Best bee
         %find current bee fitness_weight fw
         if fitness(best_bee.xs) ~= 0
-            fitness_weight = fitness(best_bee.xs)/fitness( current_bee.xs) - weightFactor;
+            bbf = fitness(best_bee.xs);
+            cbf = fitness(current_bee.xs);
+            if bbf < (0.05 * cbf)
+                fitness_weight = 0.2;
+            else
+                fitness_weight = fitness(best_bee.xs)/fitness( current_bee.xs) - weightFactor;
+            end
         end
         for d=1 : dimensions
             x = current_bee.xs(d);
@@ -71,15 +82,16 @@ for iterate = 1 : max_iteration
             end
             if fitness(tempBee.xs) < fitness( current_bee.xs)
                 current_bee = tempBee;
+            else
+                for k=1 : dimensions
+                    x = current_bee.xs(k);
+                    random = Levy(1);
+                    x= x + x*random;
+                     x = getIntoBounderyLimit(x);
+                    tempBee.xs(k)= x;
+                end
             end
-        else
-            for k=1 : dimensions
-                x = current_bee.xs(k);
-                random = Levy(1);
-                x= x + x*random;
-                 x = getIntoBounderyLimit(x);
-                tempBee.xs(k)= x;
-            end
+        
             if fitness(tempBee.xs) < fitness( current_bee.xs)
                 current_bee = tempBee;
             end
